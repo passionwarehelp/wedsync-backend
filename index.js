@@ -4,20 +4,7 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON
-const express = require("express");
-const cors = require("cors");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// ✅ CORS configuration
-const express = require("express");
-const cors = require("cors");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
+// CORS configuration
 app.use(cors({
   origin: [
     "https://www.mywedsync.com",
@@ -30,10 +17,11 @@ app.use(cors({
   credentials: true
 }));
 
+// Handle preflight requests
 app.options("*", cors());
 
+// Parse JSON bodies
 app.use(express.json());
-
 
 // Health check route
 app.get("/", (req, res) => {
