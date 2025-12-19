@@ -25,7 +25,33 @@ app.use(
 
 // Auth middleware - extracts session and attaches to context
 app.use("*", async (c, next) => {
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  // First try Better Auth's built-in session resolution
+  let session = await auth.api.getSession({ headers: c.req.raw.headers });
+  
+  // If no session, try to get token from Authorization header and look up manually
+  if (!session?.user) {
+    const authHeader = c.req.header("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      try {
+        // Look up session by token directly in database
+        const dbSession = await db.session.findFirst({
+          where: { token },
+          include: { user: true },
+        });
+        
+        if (dbSession && dbSession.expiresAt > new Date()) {
+          session = {
+            user: dbSession.user,
+            session: dbSession,
+          };
+        }
+      } catch (e) {
+        console.error("Error looking up session:", e);
+      }
+    }
+  }
+  
   c.set("user", session?.user ?? null);
   c.set("session", session?.session ?? null);
   return next();
