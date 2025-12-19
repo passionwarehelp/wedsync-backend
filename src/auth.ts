@@ -13,14 +13,23 @@ export const auth = betterAuth({
   baseURL: PRODUCTION_BACKEND_URL,
   plugins: [expo()],
   trustedOrigins: [
+    // App scheme
     "wedsync://",
-    "exp://",
+    "wedsync://*",
+    // Expo development - all patterns
+    "exp://*/*",
+    "exp://10.0.0.*:*/*",
+    "exp://192.168.*.*:*/*",
+    "exp://172.*.*.*:*/*",
+    "exp://localhost:*/*",
+    // Localhost development
     "http://localhost:3000",
     "http://localhost:8081",
+    "http://127.0.0.1:8081",
+    "http://127.0.0.1:3000",
+    // Production
     "https://wedsync-backend.onrender.com",
     PRODUCTION_BACKEND_URL,
-    // Allow null origin for mobile apps
-    null as any,
   ],
   emailAndPassword: {
     enabled: true,
@@ -30,5 +39,7 @@ export const auth = betterAuth({
     crossSubDomainCookies: {
       enabled: false,
     },
+    // Disable origin check for mobile apps
+    disableCSRFCheck: true,
   },
 });
