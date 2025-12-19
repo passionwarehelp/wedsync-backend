@@ -1,5 +1,6 @@
 import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
+import { bearer } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./db";
 
@@ -11,7 +12,7 @@ export const auth = betterAuth({
   }),
   secret: process.env.BETTER_AUTH_SECRET || "CHANGE-THIS-SECRET-KEY-MINIMUM-32-CHARS",
   baseURL: PRODUCTION_BACKEND_URL,
-  plugins: [expo()],
+  plugins: [expo(), bearer()],
   trustedOrigins: [
     // App scheme
     "wedsync://",
@@ -39,7 +40,6 @@ export const auth = betterAuth({
     crossSubDomainCookies: {
       enabled: false,
     },
-    // Disable origin check for mobile apps
     disableCSRFCheck: true,
   },
 });
