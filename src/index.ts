@@ -11,8 +11,14 @@ app.use("*", logger());
 app.use(
   "/*",
   cors({
-    origin: ["http://localhost:8081", "http://localhost:3000", process.env.BACKEND_URL || ""],
+    origin: (origin) => {
+      // Allow requests from mobile apps (null origin), localhost, and production
+      if (!origin) return "https://wedsync-backend.onrender.com";
+      return origin;
+    },
     credentials: true,
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
