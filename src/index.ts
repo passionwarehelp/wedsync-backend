@@ -13,7 +13,6 @@ app.use(
   "/*",
   cors({
     origin: (origin) => {
-      // Allow requests from mobile apps (null origin), localhost, and production
       if (!origin) return "https://wedsync-backend.onrender.com";
       return origin;
     },
@@ -33,6 +32,7 @@ app.use("*", async (c, next) => {
     const authHeader = c.req.header("Authorization");
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.substring(7);
+      console.log("[Auth] Looking up token:", token.substring(0, 8) + "...");
       try {
         // Look up session by token directly in database
         const dbSession = await db.session.findFirst({
@@ -40,16 +40,23 @@ app.use("*", async (c, next) => {
           include: { user: true },
         });
         
+        console.log("[Auth] DB session found:", !!dbSession);
+        
         if (dbSession && dbSession.expiresAt > new Date()) {
           session = {
             user: dbSession.user,
             session: dbSession,
-          };
+          } as any;
+          console.log("[Auth] Session valid, user:", dbSession.user.email);
+        } else if (dbSession) {
+          console.log("[Auth] Session expired");
         }
       } catch (e) {
-        console.error("Error looking up session:", e);
+        console.error("[Auth] Error looking up session:", e);
       }
     }
+  } else {
+    console.log("[Auth] Better Auth found session for:", session.user.email);
   }
   
   c.set("user", session?.user ?? null);
@@ -167,7 +174,6 @@ app.put("/api/weddings/:id", async (c) => {
   const id = c.req.param("id");
 
   try {
-    // Check ownership
     const existing = await db.wedding.findFirst({
       where: { id, userId: user.id },
     });
@@ -218,7 +224,6 @@ app.delete("/api/weddings/:id", async (c) => {
   const id = c.req.param("id");
 
   try {
-    // Check ownership
     const existing = await db.wedding.findFirst({
       where: { id, userId: user.id },
     });
