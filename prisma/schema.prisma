@@ -18,6 +18,7 @@ model user {
   updatedAt     DateTime  @default(now()) @updatedAt
   account       account[]
   session       session[]
+  wedding       wedding[]
 }
 
 model account {
@@ -56,4 +57,28 @@ model verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
+}
+
+model wedding {
+  id               String   @id @default(cuid())
+  userId           String
+  coupleName       String
+  partnerOneName   String
+  partnerTwoName   String
+  weddingDate      String
+  venue            String
+  primaryColor     String?
+  logoUri          String?
+  status           String   @default("planning")
+  qrCode           String   @default("")
+  qrCodeEnabled    Boolean  @default(false)
+  photoAlbumLive   Boolean  @default(false)
+  photoFrameEnabled Boolean @default(false)
+  guestCount       Int      @default(0)
+  rsvpCount        Int      @default(0)
+  tasksCompleted   Int      @default(0)
+  totalTasks       Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  user             user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
